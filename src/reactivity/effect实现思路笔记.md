@@ -1,0 +1,4 @@
+1、创建effect.ts文件 导出effect方法 该方法接收一个副作用的函数并且执行一次
+2、创建一个名为ReactiveEffect类的工厂函数用来调用收集的依赖
+3、调用effect时 创建ReactiveEffect实例 并传入副作用函数保存起来
+4、调用reactiveEffect实例的run方法去调用这个副作用函数
