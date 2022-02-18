@@ -1,7 +1,7 @@
 // effect实例类
 class ReactiveEffect {
   private _fn: any;
-  constructor(fn) {
+  constructor(fn, public scheduler?) {
     this._fn = fn;
   }
   run() {
@@ -50,8 +50,12 @@ export function trigger(target, key) {
   let depsMap = targetsMap.get(target);
   let dep = depsMap.get(key);
   // 遍历执行
-  for (const item of dep) {
-    item.run();
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
   }
 }
 
@@ -59,9 +63,9 @@ export function trigger(target, key) {
  * 副作用
  * @param fn 副作用函数
  */
-export function effect(fn) {
+export function effect(fn, options:any = {}) {
   // 创建effect实例 将fn存在当前实例中
-  const _reactiveEffect = new ReactiveEffect(fn);
+  const _reactiveEffect = new ReactiveEffect(fn, options.scheduler);
   // 调用该实例的run函数来执行fn函数
   _reactiveEffect.run();
   // 返回这个run函数 来使外部使用
