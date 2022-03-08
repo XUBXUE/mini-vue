@@ -10,7 +10,7 @@ describe("test scheduler", () => {
         });
         let obj = reactive({ foo: 1});
         const runner = effect(() => {
-            dummy = obj.foo
+            dummy = obj.foo;
         }, { scheduler });
 
         // 当触发effec时，立即执行参数1的回调函数
