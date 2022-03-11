@@ -2,7 +2,7 @@ import { effect, stop } from "../effect";
 import { reactive } from "../reactive";
 
 describe("test stop", () => {
-  it("happy path", () => {
+  it("stop", () => {
     let sum;
     const obj = reactive({ foo: 1});
     const runner = effect(() => {
@@ -24,7 +24,7 @@ describe("test stop", () => {
     expect(sum).toBe(5);
   });
   
-  it("stop", () => {
+  it("onStop", () => {
     let sum;
     const obj = reactive({ foo: 1});
     const onStop = jest.fn(() => {

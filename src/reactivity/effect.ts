@@ -9,7 +9,7 @@ class ReactiveEffect {
   private _fn: any; // 当前副作用函数
   public scheduler: Function | undefined; // 调度函数、由调用effect时传入的options参数中获取
   deps = []; // 被存放的dep容器集合
-  active = true; // 判断是否调用过stop
+  active = true; // 表示是否可以运行副作用
   onStop?: () => void; // 调用stop时的回调、由调用effect时传入的options参数中获取
   constructor(fn, scheduler?: Function) {
     this._fn = fn;
