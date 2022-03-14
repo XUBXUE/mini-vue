@@ -29,9 +29,9 @@ function createGetter(isReadonly = false) {
 function createdSetter() {
   return function set(target, key, value) {
     let res = Reflect.set(target, key, value);
-      // 依赖触发
-      trigger(target, key);
-      return res;
+    // 依赖触发
+    trigger(target, key);
+    return res;
   }
 }
 

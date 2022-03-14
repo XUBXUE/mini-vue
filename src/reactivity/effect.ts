@@ -3,23 +3,32 @@ import { extend } from '../shared';
 const targetsMap = new Map();
 //当前收集的依赖副作用
 let activeEffect;
+//是否应该收集依赖
+let shouldTrack;
 
 // effect实例类
 class ReactiveEffect {
   private _fn: any; // 当前副作用函数
   public scheduler: Function | undefined; // 调度函数、由调用effect时传入的options参数中获取
   deps = []; // 被存放的dep容器集合
-  active = true; // 表示是否可以运行副作用
+  active = true; // 表示是否被stop停止依赖相应
   onStop?: () => void; // 调用stop时的回调、由调用effect时传入的options参数中获取
   constructor(fn, scheduler?: Function) {
     this._fn = fn;
     this.scheduler = scheduler;
   }
   run() {
+    // 如果没有被停止依赖相应
+    if (!this.active) {
+      this._fn();
+    }
     // 获取当前effect实例
     activeEffect = this;
+    shouldTrack = true;
+    const result = this._fn();
+    shouldTrack = false;
     // 返回这个副作用函数的返回结果
-    return this._fn();
+    return result;
   }
   stop() {
     // 如果是true则表示没有调用过stop
@@ -42,6 +51,7 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });
+  effect.deps.length = 0;
 }
 /**
  * 收集依赖函数
@@ -49,6 +59,12 @@ function cleanupEffect(effect) {
  * @param key 对象属性名
  */
 export function track(target, key) {
+  // 当仅仅只是单独获取响应式数据时，并不会触发effect()函数
+  // 此时的activeEffect很有可能是undefined，所以return出去
+  if (!activeEffect) return;
+  // 不应该track时直接return
+  if (!shouldTrack) return;
+
   // 根据对象获取对应的依赖容器
   let depsMap = targetsMap.get(target);
   // 如果还没有创建就创建一个并set到targetsMap里
@@ -62,9 +78,6 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  // 当仅仅只是单独获取响应式数据时，并不会触发effect()函数
-  // 此时的activeEffect很有可能是undefined，所以return出去
-  if (!activeEffect) return;
   // 把effct添加到set集合里
   dep.add(activeEffect);
   // 将副作用实例对应的dep容器反存到本身实例对象中，以供后面做清除使用
