@@ -1,4 +1,4 @@
-import { mutableHandler, readonlyHandler } from "./baseHandler";
+import { mutableHandler, readonlyHandler, shallowReadonlyHandler, shallowMutableHandler } from "./baseHandler";
 
 function createActiveObject(raw, baseHandler) {
   return new Proxy(raw, baseHandler);
@@ -10,25 +10,49 @@ export const enum ReactiveFlags {
 }
 
 /**
- * 响应式对象
- * @param raw 传入待处理的对象（未经proxy代理的对象）
+ * 深响应式对象
+ * @param raw 做深只读响应的对象（未经proxy代理的对象）
  */
 export function reactive(raw) {
   return createActiveObject(raw, mutableHandler);
 }
 
 /**
- * 只读对象
- * @param raw 做只读处理的对象
+ * 浅响应对象
+ * @param raw 传入做浅响应的对象（未经proxy代理的对象）
+ */
+export function shallowReactive(raw) {
+  return createActiveObject(raw, shallowMutableHandler);
+}
+
+/**
+ * 深只读对象
+ * @param raw 做深只读处理的对象（未经proxy代理的对象）
  */
 export function readonly(raw) {
   return createActiveObject(raw, readonlyHandler);
 }
 
+/**
+ * 浅只读对象
+ * @param raw 做浅只读处理的对象（未经proxy代理的对象）
+ */
+ export function shallowReadonly(raw) {
+  return createActiveObject(raw, shallowReadonlyHandler);
+}
+
+/**
+ * 判断对象是否为响应式对象
+ * @param value 带确认的对象
+ */
 export function isReactive(value) {
   return !!value[ReactiveFlags.IS_REACTIVE];
 }
 
+/**
+ * 判断对象是否为只读对象
+ * @param value 带确认的对象
+ */
 export function isReadonly(value) {
   return !!value[ReactiveFlags.IS_READONLY]
 }
