@@ -53,17 +53,25 @@ function cleanupEffect(effect) {
   });
   effect.deps.length = 0;
 }
+
+/**
+ * @returns 当activeEffect不为undefined且shouldTrack为true时，可以收集依赖
+ */
+function isTracking() {
+  // 当仅仅只是单独获取响应式数据时，并不会触发effect()函数
+  // 此时的activeEffect很有可能是undefined
+  // 不应该track时直接return
+  return shouldTrack && activeEffect != undefined;
+}
+
 /**
  * 收集依赖函数
  * @param target 响应式对象
  * @param key 对象属性名
  */
 export function track(target, key) {
-  // 当仅仅只是单独获取响应式数据时，并不会触发effect()函数
-  // 此时的activeEffect很有可能是undefined，所以return出去
-  if (!activeEffect) return;
-  // 不应该track时直接return
-  if (!shouldTrack) return;
+  // 是否处于可收集状态
+  if (!isTracking()) return;
 
   // 根据对象获取对应的依赖容器
   let depsMap = targetsMap.get(target);
@@ -78,6 +86,8 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
+  // 如果dep中存在当前activeEffect则不用收集
+  if (dep.has(activeEffect)) return;
   // 把effct添加到set集合里
   dep.add(activeEffect);
   // 将副作用实例对应的dep容器反存到本身实例对象中，以供后面做清除使用
