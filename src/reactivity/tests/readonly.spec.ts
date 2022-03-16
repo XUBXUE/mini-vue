@@ -18,7 +18,16 @@ describe('test readonly', () => {
       age: 18
     });
     user.age = 19;
-    
+
     expect(console.warn).toBeCalled();
+  });
+
+  it('deep readonly', () => {
+    const original = { foo: { bar: 1 } };
+    const readObj = readonly(original);
+    expect(isReadonly(original)).toBe(false);
+    expect(isReadonly(readObj)).toBe(true);
+    expect(isReadonly(original.foo)).toBe(false);
+    expect(isReadonly(readObj.foo)).toBe(true);
   })
 })

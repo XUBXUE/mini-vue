@@ -1,3 +1,4 @@
+import { isObj } from "../shared";
 import { track, trigger } from "./effect";
 import { reactive, ReactiveFlags, readonly } from "./reactive";
 
@@ -19,7 +20,7 @@ function createGetter(isReadonly = false) {
     }
     const res = Reflect.get(target, key);
     // 如果获取的属性值是对象则返回响应式对象
-    if (typeof res == 'object' && res !== null) {
+    if (isObj(res)) {
       return isReadonly ? readonly(res) : reactive(res);
     }
     // 如果是只读对象则不处罚收集依赖函数

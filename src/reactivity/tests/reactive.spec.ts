@@ -9,4 +9,13 @@ describe("reactive", () => {
     expect(isReactive(reactiver)).toBe(true);
     expect(isReactive(original)).toBe(false);
   });
+
+  it("deep reactive", () => {
+    const original = { foo: { bar: 1 } };
+    const reactiver = reactive(original);
+    expect(isReactive(reactiver)).toBe(true);
+    expect(isReactive(original)).toBe(false);
+    expect(isReactive(reactiver.foo)).toBe(true);
+    expect(isReactive(original.foo)).toBe(false);
+  })
 });
