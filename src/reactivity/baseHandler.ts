@@ -1,5 +1,5 @@
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
+import { reactive, ReactiveFlags, readonly } from "./reactive";
 
 // 因为所有proxy用到的get或set都是一样的，所以全局声明get和set使用，防止每创建一个响应式对象或只读对象所带来的创建get和set的内存消耗
 // reactive响应式对象用到的get处理函数
@@ -18,6 +18,10 @@ function createGetter(isReadonly = false) {
       return isReadonly;
     }
     const res = Reflect.get(target, key);
+    // 如果获取的属性值是对象则返回响应式对象
+    if (typeof res == 'object' && res !== null) {
+      return isReadonly ? readonly(res) : reactive(res);
+    }
     // 如果是只读对象则不处罚收集依赖函数
     if (!isReadonly) {
       // 收集依赖
