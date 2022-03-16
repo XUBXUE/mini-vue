@@ -43,7 +43,7 @@ export function readonly(raw) {
 
 /**
  * 判断对象是否为响应式对象
- * @param value 带确认的对象
+ * @param value 待确认的对象
  */
 export function isReactive(value) {
   return !!value[ReactiveFlags.IS_REACTIVE];
@@ -51,8 +51,16 @@ export function isReactive(value) {
 
 /**
  * 判断对象是否为只读对象
- * @param value 带确认的对象
+ * @param value 待确认的对象
  */
 export function isReadonly(value) {
   return !!value[ReactiveFlags.IS_READONLY]
+}
+
+/**
+ * 判断对象是否为代理对象
+ * @param value 待确认的对象
+ */
+export function isProxy(value) {
+  return isReactive(value) || isReadonly(value);
 }
