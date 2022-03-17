@@ -1,5 +1,6 @@
 # mini-vue
 实现以下功能
+## reactivity（响应模块）
   - [x] effect
   - [x] reactive
   - [x] shallowReactive
@@ -8,4 +9,9 @@
   - [x] isReactive
   - [x] isReadonly
   - [x] isProxy
-  - [ ] ref
+  - [x] ref
+  - [x] isRef
+  - [x] unRef
+  - [ ] computed
+  - [ ] watch
+  - [ ] watchEffect

@@ -57,7 +57,7 @@ function cleanupEffect(effect) {
 /**
  * @returns 当activeEffect不为undefined且shouldTrack为true时，可以收集依赖
  */
-function isTracking() {
+export function isTracking() {
   // 当仅仅只是单独获取响应式数据时，并不会触发effect()函数
   // 此时的activeEffect很有可能是undefined
   // 不应该track时直接return
@@ -86,6 +86,9 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
+  trackEffects(dep);
+}
+export function trackEffects(dep) {
   // 如果dep中存在当前activeEffect则不用收集
   if (dep.has(activeEffect)) return;
   // 把effct添加到set集合里
@@ -103,6 +106,9 @@ export function trigger(target, key) {
   // 获取target、key对应的依赖集合
   let depsMap = targetsMap.get(target);
   let dep = depsMap.get(key);
+  triggerEffects(dep);
+}
+export function triggerEffects(dep) {
   // 遍历执行
   for (const effect of dep) {
     if (effect.scheduler) {
