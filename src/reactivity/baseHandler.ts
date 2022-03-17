@@ -50,9 +50,9 @@ function createGetter(isReadonly = false, isShallow = false) {
  */
 function createdSetter() {
   return function set(target, key, value, receiver) {
-    let res = Reflect.set(target, key, value, receiver);
     // 依赖触发
     let oldValue = target[key];
+    let res = Reflect.set(target, key, value, receiver);
 
     // 当赋值了一个跟属性值本身相同的数据时不做处理
     // 且因为NaN !== NaN 所以新值和旧值必须有一项自身相等才能符合条件
