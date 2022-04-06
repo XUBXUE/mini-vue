@@ -12,6 +12,9 @@
   - [x] ref
   - [x] isRef
   - [x] unRef
-  - [ ] computed
+  - [x] computed
   - [ ] watch
   - [ ] watchEffect
+
+  ## runtime-core（运行时核心模块）
+  - [x] component初始化流程
