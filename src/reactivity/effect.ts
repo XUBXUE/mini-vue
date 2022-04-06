@@ -7,7 +7,7 @@ let activeEffect;
 let shouldTrack;
 
 // effect实例类
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any; // 当前副作用函数
   public scheduler: Function | undefined; // 调度函数、由调用effect时传入的options参数中获取
   deps = []; // 被存放的dep容器集合
@@ -20,7 +20,7 @@ class ReactiveEffect {
   run() {
     // 如果没有被停止依赖相应
     if (!this.active) {
-      this._fn();
+      return this._fn();
     }
     // 获取当前effect实例
     activeEffect = this;
