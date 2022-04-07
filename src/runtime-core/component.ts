@@ -2,13 +2,14 @@ export function createComponentInstance(vnode) {
   const instance = {
     vnode, // 组件vnode
     type: vnode.type, // 组件对象
+    setupState: {},
   };
 
   return instance;
 }
 
 export function setupComponent(instance) {
-  // TODO
+  // TODO:
   // initProps()
   // initSlots()
   // 处理组件的数据状态
@@ -18,6 +19,19 @@ export function setupComponent(instance) {
 function setupStatefulComponent(instance) {
   // 获取setup返回的结果挂载到组件实例上
   const component = instance.type;
+
+  instance.proxy = new Proxy(
+    {},
+    {
+      get(target, key) {
+        const { setupState } = instance;
+        if (key in setupState) {
+          return setupState[key];
+        }
+      },
+    }
+  );
+
   const { setup } = component;
   // 如果组件存在setup函数则对其返回结果进行处理
   if (setup) {
@@ -28,7 +42,7 @@ function setupStatefulComponent(instance) {
 
 function handleSetupResult(instance, setupResult: any) {
   // setup返回的可能是数据对象也可能是函数（视为render函数）
-  // TODO 处理function情况
+  // TODO: 处理function情况
   // if (typeof setupResult === "function") {
   //   const component = instance.type;
   //   component.render = setupResult;

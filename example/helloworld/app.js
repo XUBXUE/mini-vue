@@ -5,13 +5,13 @@ export const App = {
     return h("ol", {
       class: 'red'
     }, [
-      h("li", null, 'Vue'),
-      h("li", null, 'Vite'),
-      h("li", null, 'Typescript')
+      h("li", null, this.msg[0]),
+      h("li", null, this.msg[1]),
+      h("li", null, this.msg[2])
     ]);
   },
   setup() {
-    const msg = "world";
+    const msg = ['Vue', 'Vite', 'Typescript'];
     return { msg };
   },
 };

@@ -60,7 +60,8 @@ function mountComponent(vnode: any, container: any) {
 }
 
 function setupRenderEffect(instance: any, container: any) {
-  const subtree = instance.render();
+  const { proxy } = instance;
+  const subtree = instance.render.call(proxy);
 
   //会的虚拟节点树后，循环调用去生成真实dom
   patch(subtree, container);
