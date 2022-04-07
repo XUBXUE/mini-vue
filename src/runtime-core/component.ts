@@ -44,7 +44,7 @@ function finishComponentSetup(instance: any) {
   // 获取组件对象
   const component = instance.type;
   // 如果组件实例上没有render函数，则将组件对象上的render函数赋值给组件实例
-  if (!instance.render) {
+  if (component.render) {
     instance.render = component.render;
   }
 }

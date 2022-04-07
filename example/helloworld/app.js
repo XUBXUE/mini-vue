@@ -1,9 +1,11 @@
-export const app = {
+import { h } from "../../lib/guide-mini-vue.esm.js";
+
+export const App = {
   render() {
-    return h("h1", `hello, ${world}`);
+    return h("h1", `hello, mini-vue`);
   },
   setup() {
     const msg = "world";
-    return msg;
+    return { msg };
   },
 };

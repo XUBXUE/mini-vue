@@ -6,7 +6,15 @@ export function render(vnode, container) {
 }
 
 function patch(vnode, container) {
-  processComponent(vnode, container);
+  if (typeof vnode == 'string') {
+    processElement(vnode, container);
+  } else {
+    processComponent(vnode, container);
+  }
+}
+
+function processElement() {
+  mountElement()
 }
 
 function processComponent(vnode: any, container) {
