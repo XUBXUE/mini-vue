@@ -21,14 +21,19 @@ function setupStatefulComponent(instance) {
   const component = instance.type;
 
   instance.proxy = new Proxy(
-    {},
+    // 传入一个属性为_值为instance的对象
+    {_: instance},
     {
       get(target, key) {
         const { setupState } = instance;
         if (key in setupState) {
           return setupState[key];
         }
-      },
+        // 如果获取的key是$el则返回vnode的el属性值
+        if (key == '$el') {
+          return instance.vnode.el
+        }
+      }
     }
   );
 

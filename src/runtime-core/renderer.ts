@@ -1,4 +1,5 @@
 import { isObject } from "../shared";
+import { ShapFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 
 export function render(vnode: any, container: any) {
@@ -8,9 +9,9 @@ export function render(vnode: any, container: any) {
 
 function patch(vnode: any, container: any) {
   // vnode的type为字符串类型时，表示为一个元素标签，否则表示为一个组件
-  if (typeof vnode.type == "string") {
+  if (vnode.shapeFlag & ShapFlags.ELEMENT) {
     processElement(vnode, container);
-  } else if (isObject(vnode.type)) {
+  } else if (vnode.shapeFlag & ShapFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   }
 }
@@ -30,15 +31,22 @@ function processComponent(vnode: any, container: any) {
 function mountElement(vnode: any, container: any) {
   const { type, props, children } = vnode;
   // 根据type生成指定的标签元素
-  const el = document.createElement(type);
+  const el = (vnode.el = document.createElement(type));
   if (props && isObject(props)) {
     for (const key in props) {
-      el.setAttribute(key, props[key]);
+      // 如果key为on开头则表示是注册一个事件
+      const isOn = (key: string) => /^on[A-Z]/.test(key);
+      if (isOn(key)) {
+        const event = key.slice(2).toLowerCase();
+        el.addEventListener(event, props[key]);
+      } else {
+        el.setAttribute(key, props[key]);
+      }
     }
   }
-  if (typeof children == "string") {
+  if (vnode.shapeFlag & ShapFlags.TEXT_CHILDREN) {
     el.textContent = children;
-  } else if (Array.isArray(children)) {
+  } else if (vnode.shapeFlag & ShapFlags.ARRAY_CHILDREN) {
     mountChildren(vnode, el);
   }
   container.appendChild(el);
@@ -50,19 +58,22 @@ function mountChildren(vnode, container) {
   });
 }
 
-function mountComponent(vnode: any, container: any) {
+function mountComponent(initialVNode: any, container: any) {
   // 生成组件实例
-  const instance = createComponentInstance(vnode);
-  // 处理组件的数据（reactive/ref/props/slots等）处理渲染函数等
+  const instance = createComponentInstance(initialVNode);
+  // 处理组件的数据状态（reactive/ref/props/slots等）处理渲染函数等
   setupComponent(instance);
-  // 处理完组件的数据和渲染函数后就可以开始执行render函数进行递归patch了
-  setupRenderEffect(instance, container);
+  // 处理完组件的相应书数据和渲染函数后就可以开始执行render函数进行递归patch了
+  setupRenderEffect(instance, initialVNode, container);
 }
 
-function setupRenderEffect(instance: any, container: any) {
+function setupRenderEffect(instance: any, initialVNode: any, container: any) {
   const { proxy } = instance;
   const subtree = instance.render.call(proxy);
 
   //会的虚拟节点树后，循环调用去生成真实dom
   patch(subtree, container);
+
+  // 将组件的根节点赋值给vnode.el以便$el来获取
+  initialVNode.el = subtree.el;
 }
