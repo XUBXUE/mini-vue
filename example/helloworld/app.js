@@ -1,4 +1,5 @@
 import { h } from "../../lib/guide-mini-vue.esm.js";
+import { Foo } from "./Foo.js";
 window.self = null;
 export const App = {
   render() {
@@ -18,9 +19,21 @@ export const App = {
         },
       },
       [
-        h("li", null, this.msg[0]),
-        h("li", null, this.msg[1]),
-        h("li", null, this.msg[2]),
+        h("li", null, [
+          h(Foo, {
+            title: this.msg[0],
+          }),
+        ]),
+        h("li", null, [
+          h(Foo, {
+            title: this.msg[1],
+          }),
+        ]),
+        h("li", null, [
+          h(Foo, {
+            title: this.msg[2],
+          }),
+        ]),
       ]
     );
   },
