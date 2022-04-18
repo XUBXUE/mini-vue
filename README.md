@@ -18,3 +18,6 @@
 
   ## runtime-core（运行时核心模块）
   - [x] component初始化流程
+  - [x] 组件代理对象
+  - [x] 实现shapeFlags
+  - [x] 实现props
