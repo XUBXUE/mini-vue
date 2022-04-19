@@ -21,3 +21,4 @@
   - [x] 组件代理对象
   - [x] 实现shapeFlags
   - [x] 实现props
+  - [x] 实现emit
