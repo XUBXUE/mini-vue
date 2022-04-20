@@ -1,8 +1,8 @@
 import { isArray } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 
-export const Fragment = Symbol("Fragment");
-export const Text = Symbol("Text");
+export const Fragment = Symbol("Fragment"); // Fragment类型
+export const Text = Symbol("Text"); // Text文本类型
 
 export function createVNode(type, props?, children?) {
   const vnode = {

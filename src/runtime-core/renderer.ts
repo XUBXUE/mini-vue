@@ -40,10 +40,12 @@ function processComponent(vnode: any, container: any) {
   // TODO: 更新组件
 }
 
+// fragment节点直接处理children内容
 function processFragment(vnode: any, container: any) {
   mountChildren(vnode, container);
 }
 
+// text文本节点直接生成一个text节点的dom添加到容器里
 function processText(vnode: any, container: any) {
   const { children } = vnode;
   const textNode = (vnode.el = document.createTextNode(children));
