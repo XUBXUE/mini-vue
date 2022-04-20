@@ -1,7 +1,11 @@
 import { isArray } from "../shared";
+import { ShapeFlags } from "../shared/shapeFlags";
 
 export function initSlots(instance, children) {
-  normalizeObjectSlots(children, instance.slots);
+  const { vnode } = instance;
+  if (vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN) {
+    normalizeObjectSlots(children, instance.slots);
+  }
 }
 
 function normalizeObjectSlots(children: any, slots: any) {
@@ -9,7 +13,7 @@ function normalizeObjectSlots(children: any, slots: any) {
     for (const key in children) {
       const value = children[key];
       if (value) {
-        slots[key] = normalizeSlotValue(value);
+        slots[key] = (props: any) => normalizeSlotValue(value(props));
       }
     }
   }

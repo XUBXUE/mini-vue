@@ -14,12 +14,14 @@ export const App = {
     // 3.实现传入一个object类型的children来实现具名插槽
     const foo = h(
       Foo,
-      {},
       {
-        header: h("div", {}, "header"),
-        default: h('h1', {}, 'default'),
-        content: [h("div", {}, "1"), h("div", {}, "2")],
-        footer: h("div", {}, "footer"),
+        defaultValue: "I'm default slot"
+      },
+      {
+        header: () => h("div", {}, "header"),
+        default: ({value}) => h('h1', {}, value),
+        content: () => [h("div", {}, "1"), h("div", {}, "2")],
+        footer: () => h("div", {}, "footer"),
       }
     );
     return h("div", {}, [app, foo]);

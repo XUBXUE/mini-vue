@@ -1,5 +1,5 @@
 import { isObject } from "../shared";
-import { ShapFlags } from "../shared/shapeFlags";
+import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 
 export function render(vnode: any, container: any) {
@@ -9,9 +9,9 @@ export function render(vnode: any, container: any) {
 
 function patch(vnode: any, container: any) {
   // vnode的type为字符串类型时，表示为一个元素标签，否则表示为一个组件
-  if (vnode.shapeFlag & ShapFlags.ELEMENT) {
+  if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
-  } else if (vnode.shapeFlag & ShapFlags.STATEFUL_COMPONENT) {
+  } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   }
 }
@@ -44,9 +44,9 @@ function mountElement(vnode: any, container: any) {
       }
     }
   }
-  if (vnode.shapeFlag & ShapFlags.TEXT_CHILDREN) {
+  if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
-  } else if (vnode.shapeFlag & ShapFlags.ARRAY_CHILDREN) {
+  } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     mountChildren(vnode, el);
   }
   container.appendChild(el);

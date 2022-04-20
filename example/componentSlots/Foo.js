@@ -2,16 +2,19 @@ import { h, renderSlots } from "../../lib/guide-mini-vue.esm.js";
 
 export const Foo = {
   name: "Foo",
-  setup() {},
+  setup(props) {
+    console.log("props.defaultValue", props.defaultValue);
+  },
   render() {
     const foo = h("p", {}, "123");
-    console.log(this.$slots)
+    console.log(this.$slots);
+    console.log("this.defaultValue", this.defaultValue);
     return h("div", {}, [
       renderSlots(this.$slots, "header"),
-      renderSlots(this.$slots),
+      renderSlots(this.$slots, "default", {value: this.defaultValue}),
       foo,
       renderSlots(this.$slots, "content"),
-      renderSlots(this.$slots, "footer")
+      renderSlots(this.$slots, "footer"),
     ]);
   },
 };
