@@ -1,7 +1,8 @@
 import { hasOwn } from "../shared";
 
 const publicPropertiesMap = {
-  $el: i => i.vnode.el
+  $el: i => i.vnode.el,
+  $slots: i => i.slots
 }
 
 // 处理组件代理对象获取setup返回的数据对象以及$el属性值
