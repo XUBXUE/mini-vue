@@ -1,6 +1,7 @@
 import { isObject } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment } from "./vnode";
 
 export function render(vnode: any, container: any) {
   // render函数里做patch打补丁操作来生成/更新/删除真实DOM
@@ -9,10 +10,19 @@ export function render(vnode: any, container: any) {
 
 function patch(vnode: any, container: any) {
   // vnode的type为字符串类型时，表示为一个元素标签，否则表示为一个组件
-  if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  const { type } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container)
+      break;
+
+    default:
+      if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+      break;
   }
 }
 
@@ -26,6 +36,10 @@ function processComponent(vnode: any, container: any) {
   // 初始化组件
   mountComponent(vnode, container);
   // TODO: 更新组件
+}
+
+function processFragment(vnode: any, container: any) {
+  mountChildren(vnode, container)
 }
 
 function mountElement(vnode: any, container: any) {
@@ -77,3 +91,4 @@ function setupRenderEffect(instance: any, initialVNode: any, container: any) {
   // 将组件的根节点赋值给vnode.el以便$el来获取
   initialVNode.el = subtree.el;
 }
+
