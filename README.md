@@ -26,3 +26,4 @@
   - [x] 实现作用域插槽
   - [x] 实现渲染Fragment节点
   - [x] 实现渲染Text节点
+  - [x] 实现getCurrentInstance函数
