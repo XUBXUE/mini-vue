@@ -4,13 +4,15 @@ import { emit } from "./componentEmit";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
   const instance = {
     vnode, // 组件vnode
     type: vnode.type, // 组件对象
     setupState: {},
     props: {},
     slots: {},
+    provides: {},
+    parent,
     emit: () => {},
   };
 
