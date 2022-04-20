@@ -1,7 +1,7 @@
 import { isObject } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
-import { Fragment } from "./vnode";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode: any, container: any) {
   // render函数里做patch打补丁操作来生成/更新/删除真实DOM
@@ -10,16 +10,18 @@ export function render(vnode: any, container: any) {
 
 function patch(vnode: any, container: any) {
   // vnode的type为字符串类型时，表示为一个元素标签，否则表示为一个组件
-  const { type } = vnode;
+  const { type, shapeFlag } = vnode;
   switch (type) {
     case Fragment:
-      processFragment(vnode, container)
+      processFragment(vnode, container);
       break;
-
+    case Text:
+      processText(vnode, container);
+      break;
     default:
-      if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
+      if (shapeFlag & ShapeFlags.ELEMENT) {
         processElement(vnode, container);
-      } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
         processComponent(vnode, container);
       }
       break;
@@ -39,7 +41,13 @@ function processComponent(vnode: any, container: any) {
 }
 
 function processFragment(vnode: any, container: any) {
-  mountChildren(vnode, container)
+  mountChildren(vnode, container);
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.appendChild(textNode);
 }
 
 function mountElement(vnode: any, container: any) {
@@ -91,4 +99,3 @@ function setupRenderEffect(instance: any, initialVNode: any, container: any) {
   // 将组件的根节点赋值给vnode.el以便$el来获取
   initialVNode.el = subtree.el;
 }
-
