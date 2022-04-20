@@ -18,8 +18,8 @@ export const App = {
         defaultValue: "I'm default slot"
       },
       {
-        header: () => h("div", {}, "header"),
-        default: ({value}) => h('h1', {}, value),
+        // header: () => h("h1", {}, "header"),
+        default: ({value}) => h('div', {}, value),
         content: () => [h("div", {}, "1"), createTextVNode('2')],
         footer: () => h("div", {}, "footer"),
       }

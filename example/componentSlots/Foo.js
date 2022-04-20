@@ -10,8 +10,10 @@ export const Foo = {
     console.log(this.$slots);
     console.log("this.defaultValue", this.defaultValue);
     return h("div", {}, [
-      renderSlots(this.$slots, "header"),
-      renderSlots(this.$slots, "default", {value: this.defaultValue}),
+      renderSlots(this.$slots, "header", {}, () => [
+        h("h1", { style: "color: red;" }, "我是header插槽默认值"),
+      ]),
+      renderSlots(this.$slots, "default", { value: this.defaultValue }),
       foo,
       renderSlots(this.$slots, "content"),
       renderSlots(this.$slots, "footer"),
