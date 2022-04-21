@@ -1,3 +1,4 @@
+import { effect } from "../reactivity/effect";
 import { isObject } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
@@ -8,54 +9,63 @@ export function createRenderer(options) {
   const { createElement, patchProp, insert } = options;
   function render(vnode: any, container: any) {
     // render函数里做patch打补丁操作来生成/更新/删除真实DOM
-    patch(vnode, container, null);
+    patch(null, vnode, container, null);
   }
 
-  function patch(vnode: any, container: any, parent) {
+  function patch(n1: any, n2: any, container: any, parent) {
     // vnode的type为字符串类型时，表示为一个元素标签，否则表示为一个组件
-    const { type, shapeFlag } = vnode;
+    const { type, shapeFlag } = n2;
     switch (type) {
       case Fragment:
-        processFragment(vnode, container, parent);
+        processFragment(n1, n2, container, parent);
         break;
       case Text:
-        processText(vnode, container);
+        processText(n1, n2, container);
         break;
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
-          processElement(vnode, container, parent);
+          processElement(n1, n2, container, parent);
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode, container, parent);
+          processComponent(n1, n2, container, parent);
         }
         break;
     }
   }
 
-  function processElement(vnode: any, container: any, parent) {
-    // 初始化element
-    mountElement(vnode, container, parent);
-    // TODO: 更新element
+  function processElement(n1: any, n2: any, container: any, parent: any) {
+    if (!n1) {
+      // 初始化element
+      mountElement(n2, container, parent);
+    } else {
+      // TODO: 更新element
+      patchElement(n1, n2, container, parent);
+    }
   }
 
-  function processComponent(vnode: any, container: any, parent) {
+  function patchElement(n1: any, n2: any, container: any, parent: any) {
+    console.log("n1", n1);
+    console.log("n2", n2);
+  }
+
+  function processComponent(n1: any, n2: any, container: any, parent: any) {
     // 初始化组件
-    mountComponent(vnode, container, parent);
+    mountComponent(n2, container, parent);
     // TODO: 更新组件
   }
 
   // fragment节点直接处理children内容
-  function processFragment(vnode: any, container: any, parent) {
-    mountChildren(vnode, container, parent);
+  function processFragment(n1: any, n2: any, container: any, parent: any) {
+    mountChildren(n2, container, parent);
   }
 
   // text文本节点直接生成一个text节点的dom添加到容器里
-  function processText(vnode: any, container: any) {
-    const { children } = vnode;
-    const textNode = (vnode.el = document.createTextNode(children));
+  function processText(n1: any, n2: any, container: any) {
+    const { children } = n2;
+    const textNode = (n2.el = document.createTextNode(children));
     container.appendChild(textNode);
   }
 
-  function mountElement(vnode: any, container: any, parent) {
+  function mountElement(vnode: any, container: any, parent: any) {
     const { type, props, children } = vnode;
     // 根据type生成指定的标签元素
     const el = (vnode.el = createElement(type));
@@ -74,7 +84,7 @@ export function createRenderer(options) {
 
   function mountChildren(vnode, container, parent) {
     vnode.children.forEach((v) => {
-      patch(v, container, parent);
+      patch(null, v, container, parent);
     });
   }
 
@@ -88,14 +98,26 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance: any, initialVNode: any, container: any) {
-    const { proxy } = instance;
-    const subtree = instance.render.call(proxy);
+    effect(() => {
+      if (!instance.isMounted) {
+        console.log("初始化阶段，生成subtree并patch生成真实DOM");
+        const { proxy } = instance;
+        const subtree = (instance.subtree = instance.render.call(proxy));
+        //生成虚拟节点树后，对节点树进行patch生成真实dom
+        patch(null, subtree, container, instance);
 
-    //会的虚拟节点树后，循环调用去生成真实dom
-    patch(subtree, container, instance);
-
-    // 将组件的根节点赋值给vnode.el以便$el来获取
-    initialVNode.el = subtree.el;
+        // 将组件的根节点赋值给vnode.el以便$el来获取
+        initialVNode.el = subtree.el;
+        instance.isMounted = true;
+      } else {
+        console.log("更新阶段，生成新的subtree用来和旧的subtree进行比较");
+        const { proxy } = instance;
+        const subtree = instance.render.call(proxy);
+        const prevSubtree = instance.subtree;
+        instance.subtree = subtree;
+        patch(prevSubtree, subtree, container, instance);
+      }
+    });
   }
 
   return {
