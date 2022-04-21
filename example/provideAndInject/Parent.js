@@ -1,15 +1,18 @@
-import { h, inject } from "../../lib/guide-mini-vue.esm.js";
+import { h, provide, inject, getCurrentInstance } from "../../lib/guide-mini-vue.esm.js";
+import { Child } from "./Child.js";
 
 export const Parent = {
   name: "Parent",
   setup() {
+    // provide("foo", "parentFoo");
     const foo = inject("foo");
-    const bar = inject("bar");
-
-    return { foo, bar };
+    const instance = getCurrentInstance();
+    console.log("parent", instance);
+    return { foo };
   },
   render() {
-    const foo = h("p", {}, `parent-${this.foo}-${this.bar}`);
-    return h("div", {}, [foo]);
+    const child = h(Child);
+    const foo = h("p", {}, `parent-${this.foo}`);
+    return h("div", {}, [foo, child]);
   },
 };

@@ -11,7 +11,7 @@ export function createComponentInstance(vnode, parent) {
     setupState: {},
     props: {},
     slots: {},
-    provides: {},
+    provides: parent ? parent.provides : {},
     parent,
     emit: () => {},
   };
@@ -43,11 +43,11 @@ function setupStatefulComponent(instance) {
   const { setup } = component;
   // 如果组件存在setup函数则对其返回结果进行处理
   if (setup) {
-    setCurrentInstance(instance)
+    setCurrentInstance(instance);
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit.bind(null, instance),
     });
-    setCurrentInstance(null)
+    setCurrentInstance(null);
     handleSetupResult(instance, setupResult);
   }
 }
