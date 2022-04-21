@@ -33,3 +33,4 @@
 - [x] 实现 getCurrentInstance 函数
 - [x] 实现 provide 和 inject
 - [x] 实现 自定义渲染器
+- [x] 实现 patchProps

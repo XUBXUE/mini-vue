@@ -4,14 +4,18 @@ function createElement(type) {
   return document.createElement(type);
 }
 
-function patchProp(el, props, key) {
+function patchProp(el, key, prevVal, nextVal) {
   // 如果key为on开头则表示是注册一个事件
   const isOn = (key: string) => /^on[A-Z]/.test(key);
   if (isOn(key)) {
     const event = key.slice(2).toLowerCase();
-    el.addEventListener(event, props[key]);
+    el.addEventListener(event, nextVal);
   } else {
-    el.setAttribute(key, props[key]);
+    if (nextVal === undefined || nextVal === null) {
+      el.removeAttribute(key);
+    } else {
+      el.setAttribute(key, nextVal);
+    }
   }
 }
 

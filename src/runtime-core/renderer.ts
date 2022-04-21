@@ -5,8 +5,14 @@ import { createComponentInstance, setupComponent } from "./component";
 import { createAppApi } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
+const EMPTY_OBJ = {};
+
 export function createRenderer(options) {
-  const { createElement, patchProp, insert } = options;
+  const {
+    createElement: hostCreateElement,
+    patchProp: hostPatchProp,
+    insert: hostInsert,
+  } = options;
   function render(vnode: any, container: any) {
     // render函数里做patch打补丁操作来生成/更新/删除真实DOM
     patch(null, vnode, container, null);
@@ -33,11 +39,11 @@ export function createRenderer(options) {
   }
 
   function processElement(n1: any, n2: any, container: any, parent: any) {
+    console.log("n11", n1);
     if (!n1) {
       // 初始化element
       mountElement(n2, container, parent);
     } else {
-      // TODO: 更新element
       patchElement(n1, n2, container, parent);
     }
   }
@@ -45,6 +51,40 @@ export function createRenderer(options) {
   function patchElement(n1: any, n2: any, container: any, parent: any) {
     console.log("n1", n1);
     console.log("n2", n2);
+
+    const prevProps = n1.props || EMPTY_OBJ;
+    const nextProps = n2.props || EMPTY_OBJ;
+
+    const el = (n2.el = n1.el);
+
+    patchProps(el, prevProps, nextProps);
+
+    // TODO: 更新children
+  }
+
+  function patchProps(el, prevProps, nextProps) {
+    // prop更新的几种情况
+    // 1.有新的prop添加
+    // 2.prop的值更改
+    // 3.pprop的值改为undefined或null
+    // 4.prop被删除了
+    console.log("patchProps", nextProps, prevProps);
+    if (prevProps !== nextProps) {
+      for (const key in nextProps) {
+        const newProp = nextProps[key];
+        const oldProp = prevProps[key];
+        if (newProp !== oldProp) {
+          hostPatchProp(el, key, oldProp, newProp);
+        }
+      }
+      if (prevProps != EMPTY_OBJ) {
+        for (const key in prevProps) {
+          if (!(key in nextProps)) {
+            hostPatchProp(el, key, prevProps[key], null);
+          }
+        }
+      }
+    }
   }
 
   function processComponent(n1: any, n2: any, container: any, parent: any) {
@@ -68,10 +108,11 @@ export function createRenderer(options) {
   function mountElement(vnode: any, container: any, parent: any) {
     const { type, props, children } = vnode;
     // 根据type生成指定的标签元素
-    const el = (vnode.el = createElement(type));
+    const el = (vnode.el = hostCreateElement(type));
     if (props && isObject(props)) {
       for (const key in props) {
-        patchProp(el, props, key);
+        const value = props[key];
+        hostPatchProp(el, key, null, value);
       }
     }
     if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -79,7 +120,7 @@ export function createRenderer(options) {
     } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
       mountChildren(vnode, el, parent);
     }
-    insert(el, container);
+    hostInsert(el, container);
   }
 
   function mountChildren(vnode, container, parent) {
