@@ -1,17 +1,17 @@
 import { effect } from "../reactivity/effect";
-import { isObject } from "../shared";
+import { EMPTY_OBJ, isObject } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppApi } from "./createApp";
 import { Fragment, Text } from "./vnode";
-
-const EMPTY_OBJ = {};
 
 export function createRenderer(options) {
   const {
     createElement: hostCreateElement,
     patchProp: hostPatchProp,
     insert: hostInsert,
+    remove: hostRemove,
+    setElementText: hostSetElementText,
   } = options;
   function render(vnode: any, container: any) {
     // render函数里做patch打补丁操作来生成/更新/删除真实DOM
@@ -39,7 +39,6 @@ export function createRenderer(options) {
   }
 
   function processElement(n1: any, n2: any, container: any, parent: any) {
-    console.log("n11", n1);
     if (!n1) {
       // 初始化element
       mountElement(n2, container, parent);
@@ -57,9 +56,45 @@ export function createRenderer(options) {
 
     const el = (n2.el = n1.el);
 
+    patchChildren(n1, n2, el, parent);
     patchProps(el, prevProps, nextProps);
 
     // TODO: 更新children
+  }
+
+  function patchChildren(n1: any, n2: any, container: any, parent) {
+    // patch子级元素有四种情况
+    // 1. array -> text
+    // 2. text -> text
+    // 3. text -> array
+    // 4. array -> array
+    const prevShapeFlag = n1.shapeFlag;
+    const { shapeFlag: nextShapeFlag } = n2;
+    const c1 = n1.children;
+    const c2 = n2.children;
+
+    if (nextShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // 新的是text 老的是array 会先把所有array中的元素移除
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        unmountChildren(c1);
+      }
+      // 不管旧的是array还是text  只要与新的不相同就会重新填写文本内容，因为这里的条件是 新的是textc
+      if (c1 != c2) {
+        hostSetElementText(container, c2);
+      }
+    } else {
+      // 新的是array 旧的是text
+      if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        hostSetElementText(container, "");
+        mountChildren(c2, container, parent);
+      }
+    }
+  }
+
+  function unmountChildren(children) {
+    for (const child of children) {
+      hostRemove(child.el);
+    }
   }
 
   function patchProps(el, prevProps, nextProps) {
@@ -68,7 +103,6 @@ export function createRenderer(options) {
     // 2.prop的值更改
     // 3.pprop的值改为undefined或null
     // 4.prop被删除了
-    console.log("patchProps", nextProps, prevProps);
     if (prevProps !== nextProps) {
       for (const key in nextProps) {
         const newProp = nextProps[key];
@@ -95,7 +129,7 @@ export function createRenderer(options) {
 
   // fragment节点直接处理children内容
   function processFragment(n1: any, n2: any, container: any, parent: any) {
-    mountChildren(n2, container, parent);
+    mountChildren(n2.children, container, parent);
   }
 
   // text文本节点直接生成一个text节点的dom添加到容器里
@@ -118,13 +152,13 @@ export function createRenderer(options) {
     if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       el.textContent = children;
     } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(vnode, el, parent);
+      mountChildren(vnode.children, el, parent);
     }
     hostInsert(el, container);
   }
 
-  function mountChildren(vnode, container, parent) {
-    vnode.children.forEach((v) => {
+  function mountChildren(children, container, parent) {
+    children.forEach((v) => {
       patch(null, v, container, parent);
     });
   }
