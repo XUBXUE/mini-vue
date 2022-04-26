@@ -211,10 +211,11 @@ export function createRenderer(options) {
       }
 
       const toBePatched = e2 - s2 + 1; //新的chilren里所需要对比的元素个数
-      let patched = 0;// 当前patch了几个新的children里的元素
+      let patched = 0; // 当前patch了几个新的children里的元素
       for (let i = s1; i <= e1; i++) {
         const prevChild = c1[i];
-        if (patched >= toBePatched) { // 当前patch的数量大于了需要对比的数量，则表示都是多余的旧元素 需要删除
+        if (patched >= toBePatched) {
+          // 当前patch的数量大于了需要对比的数量，则表示都是多余的旧元素 需要删除
           hostRemove(prevChild.el);
           continue;
         }
@@ -231,7 +232,7 @@ export function createRenderer(options) {
             }
           }
         }
-        
+
         if (!nextIndex) {
           // 如果没有找到该索引，表示新列表中没有存在该元素 则删除
           hostRemove(prevChild.el);
@@ -373,4 +374,45 @@ export function createRenderer(options) {
   return {
     createApp: createAppApi(render),
   };
+}
+
+function getSequence(arr: number[]): number[] {
+  const p = arr.slice();
+  const result = [0];
+  let i, j, u, v, c;
+  const len = arr.length;
+  for (i = 0; i < len; i++) {
+    const arrI = arr[i];
+    if (arrI !== 0) {
+      j = result[result.length - 1];
+      if (arr[j] < arrI) {
+        p[i] = j;
+        result.push(i);
+        continue;
+      }
+      u = 0;
+      v = result.length - 1;
+      while (u < v) {
+        c = (u + v) >> 1;
+        if (arr[result[c]] < arrI) {
+          u = c + 1;
+        } else {
+          v = c;
+        }
+      }
+      if (arrI < arr[result[u]]) {
+        if (u > 0) {
+          p[i] = result[u - 1];
+        }
+        result[u] = i;
+      }
+    }
+  }
+  u = result.length;
+  v = result[u - 1];
+  while (u-- > 0) {
+    result[u] = v;
+    v = p[v];
+  }
+  return result;
 }
