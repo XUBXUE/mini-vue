@@ -194,10 +194,12 @@ export function createRenderer(options) {
       }
     } else if (i > e2) {
       // 4. 旧的比新的多
+      // 这时i的值应比e2要大,比e1要小 因为已经遍历完了c2，还剩下多余的c1的内容
       // 左边多时 e1大于等于0 e2为-1 i为0  所以i>e2,i<=e1
       // 右边多时 e1为旧的长度 e2为新的长度且小于e1 i为新的长度+1 所以i<=e1,i>e2
       if (i <= e1) {
         while (i <= e1) {
+          // 将多余的旧节点直接删除
           hostRemove(c1[i].el);
           i++;
         }
@@ -205,8 +207,8 @@ export function createRenderer(options) {
     } else {
       // 5. 对比中间内容
       // i为获取到子级节点中间部分的数组的开始索引
-      let s1 = i; //旧children的中间部分的结束索引
-      let s2 = i; //新children的中间部分的结束索引
+      let s1 = i; //旧children的中间部分的开始索引
+      let s2 = i; //新children的中间部分的开始索引
       const keyToNewIndexMap = new Map(); // 保存根据新children中间部分每个元素的key和索引位置的映射关系
 
       // 用新的children的中间部分元素内容给映射map添加映射关系
