@@ -120,6 +120,7 @@ export function createRenderer(options) {
     }
   }
 
+  // diff算法
   function patchKeyedChildren(
     c1: any,
     c2: any,
@@ -180,6 +181,8 @@ export function createRenderer(options) {
 
     // 3. 新的比旧的多
     // 这时i的值应比e1要大,比e2要小 因为已经遍历完了c1，还剩下多余的c2的内容
+    // 左边多时 e1为-1 e2大于等于0 i为0 所以i>e1,i<=e2
+    // 右边多时 e1为旧的长度 e2为新的长度且大于e1 i为旧的长度+1 所以i>e1,i<=e2
     if (i > e1) {
       if (i <= e2) {
         const anthorIndex = e2 + 1;
@@ -191,6 +194,8 @@ export function createRenderer(options) {
       }
     } else if (i > e2) {
       // 4. 旧的比新的多
+      // 左边多时 e1大于等于0 e2为-1 i为0  所以i>e2,i<=e1
+      // 右边多时 e1为旧的长度 e2为新的长度且小于e1 i为新的长度+1 所以i<=e1,i>e2
       if (i <= e1) {
         while (i <= e1) {
           hostRemove(c1[i].el);
