@@ -93,7 +93,7 @@ export function createRenderer(options) {
     // 3. text -> array
     // 4. array -> array
     const prevShapeFlag = n1.shapeFlag;
-    const { shapeFlag: nextShapeFlag } = n2;
+    const nextShapeFlag = n2.shapeFlag;
     const c1 = n1.children;
     const c2 = n2.children;
 

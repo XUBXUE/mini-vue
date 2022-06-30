@@ -34,8 +34,8 @@ import { h, ref } from "../../lib/guide-mini-vue.esm.js";
 // （对比右侧）左侧多
 // const oldChildren = [h("div", { key: "A" }, "A"), h("div", { key: "B" }, "B")];
 // const newChildren = [
-//   h("div", { key: "C" }, "D"),
-//   h("div", { key: "D" }, "C"),
+//   h("div", { key: "C" }, "C"),
+//   h("div", { key: "D" }, "D"),
 //   h("div", { key: "A" }, "A"),
 //   h("div", { key: "B" }, "B"),
 // ];
@@ -60,21 +60,21 @@ import { h, ref } from "../../lib/guide-mini-vue.esm.js";
 
 // 对比中间复杂部分
 const oldChildren = [
-  h("div", {}, "A"),
-  h("div", {}, "B"),
-  h("div", {}, "D"),
-  h("div", {}, "C"),
-  h("div", {}, "G"),
-  h("div", {}, "E"),
-  h("div", {}, "F"),
+  h("div", { key: "A" }, "A"),
+  h("div", { key: "B" }, "B"),
+  h("div", { key: "D" }, "D"),
+  h("div", { key: "C", id: "prev" }, "C"),
+  h("div", { key: "G" }, "G"),
+  h("div", { key: "E" }, "E"),
+  h("div", { key: "F" }, "F"),
 ];
 const newChildren = [
-  h("div", {}, "A"),
-  h("div", {}, "B"),
-  h("div", {}, "G"),
-  h("div", {}, "C"),
-  h("div", {}, "E"),
-  h("div", {}, "F"),
+  h("div", { key: "A" }, "A"),
+  h("div", { key: "B" }, "B"),
+  h("div", { key: "G" }, "G"),
+  h("div", { key: "C", id: "next" }, "C"),
+  h("div", { key: "E" }, "E"),
+  h("div", { key: "F" }, "F"),
 ];
 
 export const ArrayToArray = {
