@@ -77,6 +77,25 @@ const newChildren = [
   h("div", { key: "F" }, "F"),
 ];
 
+// const oldChildren = [
+//   h("div", { key: "A" }, "A"),
+//   h("div", { key: "B" }, "B"),
+//   h("div", { key: "C" }, "C"),
+//   h("div", { key: "D" }, "D"),
+//   h("div", { key: "E" }, "E"),
+//   h("div", { key: "F" }, "F"),
+//   h("div", { key: "G" }, "G"),
+// ];
+// const newChildren = [
+//   h("div", { key: "A" }, "A"),
+//   h("div", { key: "B" }, "B"),
+//   h("div", { key: "E" }, "E"),
+//   h("div", { key: "C" }, "C"),
+//   h("div", { key: "D" }, "D"),
+//   h("div", { key: "F" }, "F"),
+//   h("div", { key: "G" }, "G"),
+// ];
+
 export const ArrayToArray = {
   name: "ArrayToText",
   setup() {

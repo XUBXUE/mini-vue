@@ -209,7 +209,13 @@ export function createRenderer(options) {
       // i为获取到子级节点中间部分的数组的开始索引
       let s1 = i; //旧children的中间部分的开始索引
       let s2 = i; //新children的中间部分的开始索引
+      const toBePatched = e2 - s2 + 1; //新的chilren里所需要对比的元素个数
+      let patched = 0; // 当前patch了几个新的children里的元素
       const keyToNewIndexMap = new Map(); // 保存根据新children中间部分每个元素的key和索引位置的映射关系
+      const newKeyToOldKeyMap = new Array(toBePatched);
+      for (let i = 0; i < toBePatched; i++) newKeyToOldKeyMap[i] = 0;
+      let move = false;
+      let maxNewIndexSoFar = 0;
 
       // 用新的children的中间部分元素内容给映射map添加映射关系
       for (let i = s2; i <= e2; i++) {
@@ -217,8 +223,6 @@ export function createRenderer(options) {
         keyToNewIndexMap.set(nextChild.key, i);
       }
 
-      const toBePatched = e2 - s2 + 1; //新的chilren里所需要对比的元素个数
-      let patched = 0; // 当前patch了几个新的children里的元素
       for (let i = s1; i <= e1; i++) {
         const prevChild = c1[i];
         if (patched >= toBePatched) {
@@ -244,10 +248,37 @@ export function createRenderer(options) {
           // 如果没有找到该索引，表示新列表中没有存在该元素 则删除
           hostRemove(prevChild.el);
         } else {
+          if (nextIndex > maxNewIndexSoFar) {
+            maxNewIndexSoFar = nextIndex;
+          } else {
+            move = true;
+          }
+
+          newKeyToOldKeyMap[nextIndex - s2] = i + 1;
           // 如果找到了则patch这个旧元素和根据index获取到的新元素
           patch(prevChild, c2[nextIndex], container, parentComponent, null);
           // patch的数量加一
           patched++;
+        }
+      }
+
+      const increasingNewIndexSequence = move
+        ? getSequence(newKeyToOldKeyMap)
+        : [];
+
+      let j = increasingNewIndexSequence.length - 1;
+      for (let i = toBePatched - 1; i >= 0; i--) {
+        const nextIndex = i + s2;
+        const nextChild = c2[nextIndex];
+        const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null;
+        if (newKeyToOldKeyMap[i] === 0) {
+          patch(null, nextChild, container, parentComponent, anchor);
+        } else if (move) {
+          if (j < 0 || i !== increasingNewIndexSequence[j]) {
+            hostInsert(nextChild.el, container, anchor);
+          } else {
+            j--;
+          }
         }
       }
     }
