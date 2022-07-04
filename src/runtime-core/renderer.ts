@@ -2,6 +2,7 @@ import { effect } from "../reactivity/effect";
 import { EMPTY_OBJ, isObject } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createAppApi } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
@@ -322,9 +323,24 @@ export function createRenderer(options) {
     container: any,
     parentComponent: any
   ) {
-    // 初始化组件
-    mountComponent(n2, container, parentComponent);
+    if (!n1) {
+      // 初始化组件
+      mountComponent(n2, container, parentComponent);
+    } else {
+      updateComponent(n1, n2);
+    }
     // TODO: 更新组件
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2;
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
   }
 
   // fragment节点直接处理children内容
@@ -379,7 +395,10 @@ export function createRenderer(options) {
 
   function mountComponent(initialVNode: any, container: any, parentComponent) {
     // 生成组件实例
-    const instance = createComponentInstance(initialVNode, parentComponent);
+    const instance = (initialVNode.component = createComponentInstance(
+      initialVNode,
+      parentComponent
+    ));
     // 处理组件的数据状态（reactive/ref/props/slots等）处理渲染函数等
     setupComponent(instance);
     // 处理完组件的相应书数据和渲染函数后就可以开始执行render函数进行递归patch了
@@ -387,7 +406,7 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance: any, initialVNode: any, container: any) {
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("初始化阶段，生成subtree并patch生成真实DOM");
         const { proxy } = instance;
@@ -400,6 +419,11 @@ export function createRenderer(options) {
         instance.isMounted = true;
       } else {
         console.log("更新阶段，生成新的subtree用来和旧的subtree进行比较");
+        const { next, vnode } = instance;
+        if (next) {
+          next.el = vnode.el;
+          updateComponentPreRender(instance, next);
+        }
         const { proxy } = instance;
         const subtree = instance.render.call(proxy);
         const prevSubtree = instance.subtree;
@@ -412,6 +436,12 @@ export function createRenderer(options) {
   return {
     createApp: createAppApi(render),
   };
+}
+
+function updateComponentPreRender(instance: any, nextVNode: any) {
+  instance.vnode = nextVNode;
+  instance.next = null;
+  instance.props = nextVNode.props;
 }
 
 function getSequence(arr: number[]): number[] {

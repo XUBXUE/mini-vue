@@ -8,6 +8,7 @@ import { proxyRefs } from "../reactivity/ref";
 export function createComponentInstance(vnode, parent) {
   const instance = {
     vnode, // 组件vnode
+    next: null, // 更新后的vnode
     type: vnode.type, // 组件对象
     setupState: {},
     props: {},

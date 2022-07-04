@@ -5,6 +5,7 @@ export const App = {
   name: "App",
   setup() {
     const msg = ref("我是child props");
+    window.msg = msg;
     const count = ref(1);
     const changeMsg = () => {
       msg.value = "我改变了";
