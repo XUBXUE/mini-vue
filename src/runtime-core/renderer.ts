@@ -4,6 +4,7 @@ import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createAppApi } from "./createApp";
+import { queueJobs } from "./scheduler";
 import { Fragment, Text } from "./vnode";
 
 export function createRenderer(options) {
@@ -406,31 +407,38 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance: any, initialVNode: any, container: any) {
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        console.log("初始化阶段，生成subtree并patch生成真实DOM");
-        const { proxy } = instance;
-        const subtree = (instance.subtree = instance.render.call(proxy));
-        //生成虚拟节点树后，对节点树进行patch生成真实dom
-        patch(null, subtree, container, instance, null);
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          console.log("初始化阶段，生成subtree并patch生成真实DOM");
+          const { proxy } = instance;
+          const subtree = (instance.subtree = instance.render.call(proxy));
+          //生成虚拟节点树后，对节点树进行patch生成真实dom
+          patch(null, subtree, container, instance, null);
 
-        // 将组件的根节点赋值给vnode.el以便$el来获取
-        initialVNode.el = subtree.el;
-        instance.isMounted = true;
-      } else {
-        console.log("更新阶段，生成新的subtree用来和旧的subtree进行比较");
-        const { next, vnode } = instance;
-        if (next) {
-          next.el = vnode.el;
-          updateComponentPreRender(instance, next);
+          // 将组件的根节点赋值给vnode.el以便$el来获取
+          initialVNode.el = subtree.el;
+          instance.isMounted = true;
+        } else {
+          console.log("更新阶段，生成新的subtree用来和旧的subtree进行比较");
+          const { next, vnode } = instance;
+          if (next) {
+            next.el = vnode.el;
+            updateComponentPreRender(instance, next);
+          }
+          const { proxy } = instance;
+          const subtree = instance.render.call(proxy);
+          const prevSubtree = instance.subtree;
+          instance.subtree = subtree;
+          patch(prevSubtree, subtree, container, instance, null);
         }
-        const { proxy } = instance;
-        const subtree = instance.render.call(proxy);
-        const prevSubtree = instance.subtree;
-        instance.subtree = subtree;
-        patch(prevSubtree, subtree, container, instance, null);
+      },
+      {
+        scheduler() {
+          queueJobs(instance.update);
+        },
       }
-    });
+    );
   }
 
   return {
