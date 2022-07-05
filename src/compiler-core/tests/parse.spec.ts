@@ -1,0 +1,20 @@
+import { NodeTypes } from "../src/ast";
+import { baseParse } from "../src/parse";
+describe("Parse", () => {
+  // 解析插值
+  describe("interpolation", () => {
+    it("simple interpolation", () => {
+      const content = "{{message}}";
+
+      const ast = baseParse(content);
+
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.INTERPOLATION,
+        content: {
+          type: NodeTypes.SIMPLE_EXPRESSION,
+          content: "message",
+        },
+      });
+    });
+  });
+});
