@@ -10,9 +10,27 @@ function parseChildren(context) {
   let node;
   if (context.source.startsWith("{{")) {
     node = parseInterpolation(context);
+  } else if (context.source[0] == "<") {
+    node = parseElement(context);
   }
   nodes.push(node);
   return nodes;
+}
+
+function parseElement(context) {
+  console.log("context.source", context.source);
+  const tagReg = /^<\/?([a-z]*)/i;
+  const match: any = tagReg.exec(context.source);
+  console.log("match", match);
+  const tag = match[1];
+
+  console.log("context.source2", context.source);
+  advanceBy(context.source, match[0].length);
+
+  return {
+    type: NodeTypes.ELEMENT,
+    tag,
+  };
 }
 
 function parseInterpolation(context) {
