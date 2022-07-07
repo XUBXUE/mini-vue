@@ -29,7 +29,20 @@ function parseChildren(context) {
   return nodes;
 }
 
-function parseText(context: any) {}
+function parseText(context: any) {
+  const content = parseTextData(context, context.source.length);
+
+  return {
+    type: NodeTypes.TEXT,
+    content,
+  };
+}
+
+function parseTextData(context: any, length: number) {
+  const content = context.source.slice(0, length);
+  advanceBy(context, length);
+  return content;
+}
 
 function parseElement(context) {
   const element = parseTag(context, TagType.START);
@@ -66,10 +79,10 @@ function parseInterpolation(context) {
   // 获取插值表达式的长度
   const rawContentLength = closeIndex - openDelimiter.length;
   // 截取插值表达式
-  const rawContent = context.source.slice(0, rawContentLength);
+  const rawContent = parseTextData(context, rawContentLength);
   const content = rawContent.trim();
   // 推进
-  advanceBy(context, rawContentLength + closeDelimiter.length);
+  advanceBy(context, closeDelimiter.length);
 
   return {
     type: NodeTypes.INTERPOLATION,

@@ -30,4 +30,17 @@ describe("Parse", () => {
       });
     });
   });
+
+  describe("text", () => {
+    it("happy path", () => {
+      const content = "Hi, mini-vue";
+
+      const ast = baseParse(content);
+
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.TEXT,
+        content: "Hi, mini-vue",
+      });
+    });
+  });
 });
