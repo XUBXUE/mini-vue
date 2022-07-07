@@ -45,7 +45,9 @@ function parseTextData(context: any, length: number) {
 }
 
 function parseElement(context) {
-  const element = parseTag(context, TagType.START);
+  const element: any = parseTag(context, TagType.START);
+  // 处理标签中间部分
+  element.children = parseChildren(context);
   parseTag(context, TagType.END);
 
   return element;
@@ -63,6 +65,7 @@ function parseTag(context: any, type: TagType) {
   return {
     type: NodeTypes.ELEMENT,
     tag,
+    children: [] as any,
   };
 }
 
