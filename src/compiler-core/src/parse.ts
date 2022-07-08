@@ -7,30 +7,49 @@ const enum TagType {
 
 export function baseParse(content) {
   const context = createParserContext(content);
-  return createRoot(parseChildren(context));
+  return createRoot(parseChildren(context, ""));
 }
 
-function parseChildren(context) {
+function parseChildren(context, parentTag) {
   const nodes: any[] = [];
-  let node;
-  if (context.source.startsWith("{{")) {
-    node = parseInterpolation(context);
-  } else if (context.source[0] == "<") {
-    if (/[a-z]/i.test(context.source[1])) {
-      node = parseElement(context);
+
+  while (!isEnd(context, parentTag)) {
+    let node;
+    if (context.source.startsWith("{{")) {
+      node = parseInterpolation(context);
+    } else if (context.source[0] == "<") {
+      if (/[a-z]/i.test(context.source[1])) {
+        node = parseElement(context);
+      }
     }
+
+    if (!node) {
+      node = parseText(context);
+    }
+
+    nodes.push(node);
   }
 
-  if (!node) {
-    node = parseText(context);
-  }
-
-  nodes.push(node);
   return nodes;
 }
 
+function isEnd(context, parentTag) {
+  const s = context.source;
+  if (parentTag && s.startsWith(`</${parentTag}>`)) return true;
+  return !s;
+}
+
 function parseText(context: any) {
-  const content = parseTextData(context, context.source.length);
+  let endIndex = context.source.length;
+  const endTokens = ["{{", "<"];
+
+  for (let i = 0; i < endTokens.length; i++) {
+    const index = context.source.indexOf(endTokens[i]);
+    if (~index && endIndex > index) {
+      endIndex = index;
+    }
+  }
+  const content = parseTextData(context, endIndex);
 
   return {
     type: NodeTypes.TEXT,
@@ -47,7 +66,7 @@ function parseTextData(context: any, length: number) {
 function parseElement(context) {
   const element: any = parseTag(context, TagType.START);
   // 处理标签中间部分
-  element.children = parseChildren(context);
+  element.children = parseChildren(context, element.tag);
   parseTag(context, TagType.END);
 
   return element;
@@ -65,7 +84,6 @@ function parseTag(context: any, type: TagType) {
   return {
     type: NodeTypes.ELEMENT,
     tag,
-    children: [] as any,
   };
 }
 
