@@ -25,3 +25,5 @@ function createTransfromContext(root, options) {
     nodeTransforms: options.nodeTransforms || [],
   };
 }
+
+console.log('123')
