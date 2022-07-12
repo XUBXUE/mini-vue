@@ -1,20 +1,24 @@
-import { NodeTypes } from "./ast";
-
 export function transform(root, options) {
-  createTransfromContext(root, options);
-  traverseNode(root);
+  const context = createTransfromContext(root, options);
+  traverseNode(context.root, context);
 }
 
-function traverseNode(node: any) {
-  if (node.type == NodeTypes.TEXT) {
-    node.content += " mini-vue";
+function traverseNode(node: any, context) {
+  const nodeTransforms = context.nodeTransforms;
+  for (let i = 0; i < nodeTransforms.length; i++) {
+    const transform = nodeTransforms[i];
+    transform(node);
   }
 
+  traversChildren(node, context);
+}
+
+function traversChildren(node, context) {
   const children = node.children;
   if (children) {
     for (let i = 0; i < children.length; i++) {
       const node = children[i];
-      traverseNode(node);
+      traverseNode(node, context);
     }
   }
 }

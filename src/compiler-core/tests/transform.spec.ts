@@ -8,7 +8,7 @@ describe("transform", () => {
 
     const plugin = (node) => {
       if (node.type == NodeTypes.TEXT) {
-        node.contnt += " mini-vue";
+        node.content += " mini-vue";
       }
     };
 
