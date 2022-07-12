@@ -7,19 +7,19 @@ const enum TagType {
 
 export function baseParse(content) {
   const context = createParserContext(content);
-  return createRoot(parseChildren(context, ""));
+  return createRoot(parseChildren(context, []));
 }
 
-function parseChildren(context, parentTag) {
+function parseChildren(context, ancestors) {
   const nodes: any[] = [];
 
-  while (!isEnd(context, parentTag)) {
+  while (!isEnd(context, ancestors)) {
     let node;
     if (context.source.startsWith("{{")) {
       node = parseInterpolation(context);
     } else if (context.source[0] == "<") {
       if (/[a-z]/i.test(context.source[1])) {
-        node = parseElement(context);
+        node = parseElement(context, ancestors);
       }
     }
 
@@ -33,9 +33,16 @@ function parseChildren(context, parentTag) {
   return nodes;
 }
 
-function isEnd(context, parentTag) {
+function isEnd(context, ancestors) {
   const s = context.source;
-  if (parentTag && s.startsWith(`</${parentTag}>`)) return true;
+  if (s.startsWith("</")) {
+    for (let i = ancestors.length - 1; i >= 0; i--) {
+      const tag = ancestors[i].tag;
+      if (startsWithEndTagOpen(s, tag)) {
+        return true;
+      }
+    }
+  }
   return !s;
 }
 
@@ -63,13 +70,23 @@ function parseTextData(context: any, length: number) {
   return content;
 }
 
-function parseElement(context) {
+function parseElement(context, ancestors) {
   const element: any = parseTag(context, TagType.START);
+  ancestors.push(element);
   // 处理标签中间部分
-  element.children = parseChildren(context, element.tag);
-  parseTag(context, TagType.END);
+  element.children = parseChildren(context, ancestors);
+  ancestors.pop();
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.END);
+  } else {
+    throw new Error(`缺少结束标签:${element.tag}`);
+  }
 
   return element;
+}
+
+function startsWithEndTagOpen(source, tag) {
+  return source.slice(2, 2 + tag.length) == tag;
 }
 
 function parseTag(context: any, type: TagType) {
