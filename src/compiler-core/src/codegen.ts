@@ -44,6 +44,8 @@ function genNode(node: any, context: any) {
       break;
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(node, context);
+    case NodeTypes.ELEMENT:
+      genElement(node, context);
     default:
       break;
   }
@@ -64,6 +66,11 @@ function genInterpolation(node: any, context: any) {
 function genExpression(node: any, context: any) {
   const { push } = context;
   push(`${node.content}`);
+}
+
+function genElement(node: any, context: any) {
+  const { push, helper } = context;
+  push(`${helper(TO_DISPLAY_STRING)}("${node.tag}")`);
 }
 
 function createCodegenContext() {
