@@ -6,6 +6,8 @@ export const isObject = (value) => {
 
 export const isArray = Array.isArray;
 
+export const isString = (value) => typeof value == "string";
+
 export const hasOwn = (value, key) => {
   return Object.prototype.hasOwnProperty.call(value, key);
 };

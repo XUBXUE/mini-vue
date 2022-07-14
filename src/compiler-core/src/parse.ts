@@ -139,6 +139,8 @@ function createRoot(children) {
   return {
     children,
     type: NodeTypes.ROOT,
+    codegenNode: null,
+    helpers: [],
   };
 }
 
