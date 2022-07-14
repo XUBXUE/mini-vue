@@ -86,6 +86,7 @@ function genElement(node: any, context: any) {
     const child = children[i];
     genNode(child, context);
   }
+  push(")");
 }
 
 function genCompoundExpression(node: any, context: any) {
