@@ -74,8 +74,14 @@ function finishComponentSetup(instance: any) {
   // 获取组件对象
   const component = instance.type;
   // 如果组件实例上没有render函数，则将组件对象上的render函数赋值给组件实例
-  if (component.render) {
-    instance.render = component.render;
+  if (compiler && !component.render) {
+    if (component.template) {
+      instance.render = compiler(component.template);
+    }
+  } else {
+    if (component.render) {
+      instance.render = component.render;
+    }
   }
 }
 
@@ -87,4 +93,10 @@ export function getCurrentInstance() {
 
 export function setCurrentInstance(instance: any) {
   currentInstance = instance;
+}
+
+let compiler;
+
+export function registerRuntimeCompiler(_compiler) {
+  compiler = _compiler;
 }
