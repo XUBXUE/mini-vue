@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`codegen element 1`] = `
-"const { createElementVnode: _createElementVnode } = Vue
-return function render(_ctx, _cache) {return _createElementVnode('div', null, 'Hi, ' + _toDisplayString(message) + ', xixi.')}"
+"const { toDisplayString: _toDisplayString, createElementVnode: _createElementVnode } = Vue
+return function render(_ctx, _cache) {return _createElementVnode('div', null, 'Hi, ' + _toDisplayString(_ctx.message) + ', xixi.')}"
 `;
 
 exports[`codegen interpolation 1`] = `

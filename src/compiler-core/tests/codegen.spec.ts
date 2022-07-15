@@ -25,9 +25,9 @@ describe("codegen", () => {
   it("element", () => {
     const ast = baseParse("<div>Hi, {{message}}, xixi.</div>");
     transform(ast, {
-      nodeTransforms: [transformElement, transformText],
+      nodeTransforms: [transformExpression, transformElement, transformText],
     });
-    
+
     const { code } = generate(ast);
     expect(code).toMatchSnapshot();
   });
