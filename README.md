@@ -1,6 +1,7 @@
 # mini-vue
 
-实现以下功能
+根据学习vue3源码，实现简易版vue3
+实现功能以下：
 
 ## reactivity（响应模块）
 
