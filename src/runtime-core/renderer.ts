@@ -412,7 +412,11 @@ export function createRenderer(options) {
         if (!instance.isMounted) {
           console.log("初始化阶段，生成subtree并patch生成真实DOM");
           const { proxy } = instance;
-          const subtree = (instance.subtree = instance.render.call(proxy));
+          // 第一个proxy为绑定this上下文 第二个为编译后的渲染函数提供的第一个参数（_ctx）
+          const subtree = (instance.subtree = instance.render.call(
+            proxy,
+            proxy
+          ));
           //生成虚拟节点树后，对节点树进行patch生成真实dom
           patch(null, subtree, container, instance, null);
 
@@ -427,7 +431,8 @@ export function createRenderer(options) {
             updateComponentPreRender(instance, next);
           }
           const { proxy } = instance;
-          const subtree = instance.render.call(proxy);
+          // 第一个proxy为绑定this上下文 第二个为编译后的渲染函数提供的第一个参数（_ctx）
+          const subtree = instance.render.call(proxy, proxy);
           const prevSubtree = instance.subtree;
           instance.subtree = subtree;
           patch(prevSubtree, subtree, container, instance, null);

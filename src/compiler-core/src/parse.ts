@@ -138,6 +138,9 @@ function advanceBy(context: any, length) {
 function createRoot(children) {
   return {
     children,
+    type: NodeTypes.ROOT,
+    codegenNode: null,
+    helpers: [],
   };
 }
 
@@ -146,5 +149,3 @@ function createParserContext(content: string) {
     source: content,
   };
 }
-
-console.log('321')
